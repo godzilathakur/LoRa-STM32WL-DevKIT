@@ -52,6 +52,7 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+extern void MX_SUBGHZ_Init(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -77,6 +78,7 @@ void Error_Handler(void);
 #define FE_CTRL1_GPIO_Port GPIOC
 #define LED_Pin GPIO_PIN_15
 #define LED_GPIO_Port GPIOA
+
 /* USER CODE BEGIN Private defines */
 #define RTC_N_PREDIV_S 10
 #define RTC_PREDIV_S ((1<<RTC_N_PREDIV_S)-1)
@@ -93,5 +95,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

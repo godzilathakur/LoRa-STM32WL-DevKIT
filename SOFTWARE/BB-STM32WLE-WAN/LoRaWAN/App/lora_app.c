@@ -21,11 +21,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"
-#include "Region.h" /* Needed for LORAWAN_DEFAULT_DATA_RATE */
 #include "sys_app.h"
 #include "lora_app.h"
-#include "stm32_seq.h"
+#include "app_version.h"
 #include "LmHandler.h"
+#include "stm32_seq.h"
 
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
@@ -45,6 +45,11 @@
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
+/**
+  * LEDs period value of the timer in ms
+  */
+#define LED_PERIOD_TIME 500
+
 /* USER CODE BEGIN PD */
 /**
   * @brief LoRaWAN handler parameters
@@ -65,23 +70,68 @@
 static void OnJoinRequest(LmHandlerJoinParams_t *joinParams);
 
 /**
+  * @brief callback when LoRaWAN application has sent a frame
   * @brief  tx event callback function
   * @param  params status of last Tx
   */
 static void OnTxData(LmHandlerTxParams_t *params);
 
 /**
-  * @brief callback when LoRa application has received a frame
+  * @brief callback when LoRaWAN application has received a frame
   * @param appData data received in the last Rx
   * @param params status of last Rx
   */
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
-/*!
- * Will be called each time a Radio IRQ is handled by the MAC layer
- *
- */
+/**
+  * @brief callback when LoRaWAN Beacon status is updated
+  * @param params status of Last Beacon
+  */
+static void OnBeaconStatusChange(LmHandlerBeaconParams_t *params);
+
+/**
+  * @brief callback when system time has been updated
+  */
+static void OnSysTimeUpdate(void);
+
+/**
+  * @brief callback when LoRaWAN application Class is changed
+  * @param deviceClass new class
+  */
+static void OnClassChange(DeviceClass_t deviceClass);
+
+/**
+  * Will be called each time a Radio IRQ is handled by the MAC layer
+  *
+  */
 static void OnMacProcessNotify(void);
+
+/**
+  * @brief Change the periodicity of the uplink frames
+  * @param periodicity uplink frames period in ms
+  * @note Compliance test protocol callbacks
+  */
+static void OnTxPeriodicityChanged(uint32_t periodicity);
+
+/**
+  * @brief Change the confirmation control of the uplink frames
+  * @param isTxConfirmed Indicates if the uplink requires an acknowledgement
+  * @note Compliance test protocol callbacks
+  */
+static void OnTxFrameCtrlChanged(LmHandlerMsgTypes_t isTxConfirmed);
+
+/**
+  * @brief Change the periodicity of the ping slot frames
+  * @param pingSlotPeriodicity ping slot frames period in ms
+  * @note Compliance test protocol callbacks
+  */
+static void OnPingSlotPeriodicityChanged(uint8_t pingSlotPeriodicity);
+
+/**
+  * @brief Will be called to reset the system
+  * @note Compliance test protocol callbacks
+  */
+static void OnSystemReset(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -94,14 +144,21 @@ static void OnMacProcessNotify(void);
   */
 static LmHandlerCallbacks_t LmHandlerCallbacks =
 {
-  .GetBatteryLevel =           GetBatteryLevel,
-  .GetTemperature =            GetTemperatureLevel,
-  .GetUniqueId =               GetUniqueId,
-  .GetDevAddr =                GetDevAddr,
-  .OnMacProcess =              OnMacProcessNotify,
-  .OnJoinRequest =             OnJoinRequest,
-  .OnTxData =                  OnTxData,
-  .OnRxData =                  OnRxData
+  .GetBatteryLevel =              GetBatteryLevel,
+  .GetTemperature =               GetTemperatureLevel,
+  .GetUniqueId =                  GetUniqueId,
+  .GetDevAddr =                   GetDevAddr,
+  .OnMacProcess =                 OnMacProcessNotify,
+  .OnJoinRequest =                OnJoinRequest,
+  .OnTxData =                     OnTxData,
+  .OnRxData =                     OnRxData,
+  .OnBeaconStatusChange =         OnBeaconStatusChange,
+  .OnSysTimeUpdate =              OnSysTimeUpdate,
+  .OnClassChange =                OnClassChange,
+  .OnTxPeriodicityChanged =       OnTxPeriodicityChanged,
+  .OnTxFrameCtrlChanged =         OnTxFrameCtrlChanged,
+  .OnPingSlotPeriodicityChanged = OnPingSlotPeriodicityChanged,
+  .OnSystemReset =                OnSystemReset,
 };
 
 /* USER CODE BEGIN PV */
@@ -115,7 +172,6 @@ static LmHandlerParams_t LmHandlerParams =
   .DefaultClass =             LORAWAN_DEFAULT_CLASS,
   .AdrEnable =                LORAWAN_ADR_STATE,
   .TxDatarate =               LORAWAN_DEFAULT_DATA_RATE,
-  .PingPeriodicity =          LORAWAN_DEFAULT_PING_SLOT_PERIODICITY
 };
 /* USER CODE END PV */
 
@@ -126,6 +182,10 @@ static LmHandlerParams_t LmHandlerParams =
 
 void LoRaWAN_Init(void)
 {
+  /* USER CODE BEGIN LoRaWAN_Init_LV */
+
+  /* USER CODE END LoRaWAN_Init_LV */
+
   /* USER CODE BEGIN LoRaWAN_Init_1 */
 	 UTIL_TIMER_Init();
 	 UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LmHandlerProcess), UTIL_SEQ_RFU, LmHandlerProcess);
@@ -135,12 +195,12 @@ void LoRaWAN_Init(void)
   /* USER CODE END LoRaWAN_Init_1 */
 
   /* Init the Lora Stack*/
-  LmHandlerInit(&LmHandlerCallbacks);
+  LmHandlerInit(&LmHandlerCallbacks, APP_VERSION);
 
   /* USER CODE BEGIN LoRaWAN_Init_Last */
 
   LmHandlerConfigure(&LmHandlerParams);
-  LmHandlerJoin(ActivationType);
+  LmHandlerJoin(ActivationType, false);
   /* USER CODE END LoRaWAN_Init_Last */
 }
 
@@ -232,6 +292,25 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
   /* USER CODE END OnJoinRequest_1 */
 }
 
+static void OnBeaconStatusChange(LmHandlerBeaconParams_t *params)
+{
+  /* USER CODE BEGIN OnBeaconStatusChange_1 */
+  /* USER CODE END OnBeaconStatusChange_1 */
+}
+
+static void OnSysTimeUpdate(void)
+{
+  /* USER CODE BEGIN OnSysTimeUpdate_1 */
+
+  /* USER CODE END OnSysTimeUpdate_1 */
+}
+
+static void OnClassChange(DeviceClass_t deviceClass)
+{
+  /* USER CODE BEGIN OnClassChange_1 */
+  /* USER CODE END OnClassChange_1 */
+}
+
 static void OnMacProcessNotify(void)
 {
   /* USER CODE BEGIN OnMacProcessNotify_1 */
@@ -239,4 +318,31 @@ static void OnMacProcessNotify(void)
   /* USER CODE END OnMacProcessNotify_1 */
 }
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+static void OnTxPeriodicityChanged(uint32_t periodicity)
+{
+  /* USER CODE BEGIN OnTxPeriodicityChanged_1 */
+
+  /* USER CODE END OnTxPeriodicityChanged_1 */
+}
+
+static void OnTxFrameCtrlChanged(LmHandlerMsgTypes_t isTxConfirmed)
+{
+  /* USER CODE BEGIN OnTxFrameCtrlChanged_1 */
+
+  /* USER CODE END OnTxFrameCtrlChanged_1 */
+}
+
+static void OnPingSlotPeriodicityChanged(uint8_t pingSlotPeriodicity)
+{
+  /* USER CODE BEGIN OnPingSlotPeriodicityChanged_1 */
+
+  /* USER CODE END OnPingSlotPeriodicityChanged_1 */
+}
+
+static void OnSystemReset(void)
+{
+  /* USER CODE BEGIN OnSystemReset_1 */
+
+  /* USER CODE END OnSystemReset_1 */
+}
+

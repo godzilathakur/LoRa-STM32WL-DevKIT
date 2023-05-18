@@ -45,10 +45,6 @@ extern SUBGHZ_HandleTypeDef hsubghz;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN DBG_GPIO_RADIO */
-#define DBG_GPIO_RADIO_RX(set_rst) /*DBG_GPIO_##set_rst##_LINE(DGB_LINE1_PORT, DGB_LINE1_PIN);*/
-#define DBG_GPIO_RADIO_TX(set_rst) /*DBG_GPIO_##set_rst##_LINE(DGB_LINE2_PORT, DGB_LINE2_PIN);*/
-/* USER CODE END DBG_GPIO_RADIO */
 
 /**
   * @brief drive value used anytime radio is NOT in TX low power mode
@@ -154,5 +150,3 @@ extern SUBGHZ_HandleTypeDef hsubghz;
 #endif
 
 #endif /* __RADIO_CONF_H__*/
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

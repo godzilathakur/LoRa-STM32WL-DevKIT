@@ -23,9 +23,7 @@
 #include <stdio.h>
 #include "platform.h"
 #include "sys_app.h"
-#include "stm32_seq.h"
 #include "stm32_systime.h"
-#include "stm32_lpm.h"
 #include "timer_if.h"
 #include "utilities_def.h"
 
@@ -50,6 +48,7 @@
   * Defines the maximum battery level
   */
 #define LORAWAN_MAX_BAT   254
+
 /* USER CODE BEGIN PD */
 
 /* USER CODE END PD */
@@ -60,6 +59,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+static uint8_t SYS_TimerInitialisedFlag = 0;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -124,9 +125,9 @@ uint8_t GetBatteryLevel(void)
   return batteryLevel;  /* 1 (very low) to 254 (fully charged) */
 }
 
-uint16_t GetTemperatureLevel(void)
+int16_t GetTemperatureLevel(void)
 {
-  uint16_t temperatureLevel = 0;
+  int16_t temperatureLevel = 0;
 
   /* USER CODE BEGIN GetTemperatureLevel */
 
@@ -174,24 +175,21 @@ void GetUniqueId(uint8_t *id)
   /* USER CODE END GetUniqueId_2 */
 }
 
-uint32_t GetDevAddr(void)
+void GetDevAddr(uint32_t *devAddr)
 {
-  uint32_t val = 0;
   /* USER CODE BEGIN GetDevAddr_1 */
 
   /* USER CODE END GetDevAddr_1 */
 
-  val = LL_FLASH_GetUDN();
-  if (val == 0xFFFFFFFF)
+  *devAddr = LL_FLASH_GetUDN();
+  if (*devAddr == 0xFFFFFFFF)
   {
-    val = ((HAL_GetUIDw0()) ^ (HAL_GetUIDw1()) ^ (HAL_GetUIDw2()));
+    *devAddr = ((HAL_GetUIDw0()) ^ (HAL_GetUIDw1()) ^ (HAL_GetUIDw2()));
   }
 
   /* USER CODE BEGIN GetDevAddr_2 */
 
   /* USER CODE END GetDevAddr_2 */
-  return val;
-
 }
 
 /* USER CODE BEGIN EF */
@@ -205,24 +203,45 @@ uint32_t GetDevAddr(void)
 
 /* HAL overload functions ---------------------------------------------------------*/
 
-/* Use #if 0 if you want to keep the default HAL instead overcharge them*/
+/* Set #if 0 if you want to keep the default HAL instead overcharge them*/
 /* USER CODE BEGIN Overload_HAL_weaks_1 */
 #if 1
 /* USER CODE END Overload_HAL_weaks_1 */
+
+/* USER CODE BEGIN Overload_HAL_weaks_1a */
+
+/* USER CODE END Overload_HAL_weaks_1a */
 
 /**
   * @note This function overwrites the __weak one from HAL
   */
 uint32_t HAL_GetTick(void)
 {
+  uint32_t ret = 0;
   /* TIMER_IF can be based on other counter the SysTick e.g. RTC */
   /* USER CODE BEGIN HAL_GetTick_1 */
 
   /* USER CODE END HAL_GetTick_1 */
-  return TIMER_IF_GetTimerValue();
+  if (SYS_TimerInitialisedFlag == 0)
+  {
+    /* TIMER_IF_GetTimerValue should be used only once UTIL_TIMER_Init() is initialized */
+    /* If HAL_Delay or a TIMEOUT countdown is necessary during initialization phase */
+    /* please use temporarily another timebase source (SysTick or TIMx), which implies also */
+    /* to rework the above function HAL_InitTick() and to call HAL_IncTick() on the timebase IRQ */
+    /* Note: when TIMER_IF is based on RTC, stm32wlxx_hal_rtc.c calls this function before TimeServer is functional */
+    /* RTC TIMEOUT will not expire, i.e. if RTC has an hw problem it will keep looping in the RTC_Init function */
+    /* USER CODE BEGIN HAL_GetTick_EarlyCall */
+
+    /* USER CODE END HAL_GetTick_EarlyCall */
+  }
+  else
+  {
+    ret = TIMER_IF_GetTimerValue();
+  }
   /* USER CODE BEGIN HAL_GetTick_2 */
 
   /* USER CODE END HAL_GetTick_2 */
+  return ret;
 }
 
 /**
@@ -239,10 +258,9 @@ void HAL_Delay(__IO uint32_t Delay)
 
   /* USER CODE END HAL_Delay_2 */
 }
+
 /* USER CODE BEGIN Overload_HAL_weaks_2 */
 #endif
 /* Redefine here your own if needed */
 
 /* USER CODE END Overload_HAL_weaks_2 */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

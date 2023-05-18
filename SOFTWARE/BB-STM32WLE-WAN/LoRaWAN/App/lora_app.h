@@ -90,7 +90,7 @@ extern "C" {
 
 /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */
@@ -110,5 +110,3 @@ void LoRaWAN_Init(void);
 #endif
 
 #endif /*__LORA_APP_H__*/
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -79,7 +79,7 @@ uint8_t GetBatteryLevel(void);
   * @brief  callback to get the current temperature in the MCU
   * @retval temperature level
   */
-uint16_t GetTemperatureLevel(void);
+int16_t GetTemperatureLevel(void);
 
 /**
   * @brief  callback to get the board 64 bits unique ID
@@ -89,9 +89,9 @@ void GetUniqueId(uint8_t *id);
 
 /**
   * @brief  callback to get the board 32 bits unique ID (LSB)
-  * @retval devAddr Device Address
+  * @param  devAddr Device Address
   */
-uint32_t GetDevAddr(void);
+void GetDevAddr(uint32_t *devAddr);
 
 /* USER CODE BEGIN EFP */
 
@@ -102,5 +102,3 @@ uint32_t GetDevAddr(void);
 #endif
 
 #endif /* __SYS_APP_H__ */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

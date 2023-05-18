@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include <stddef.h>
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -74,6 +75,7 @@ typedef enum
   */
 typedef enum
 {
+  CFG_SEQ_Task_Default,
   /* USER CODE BEGIN CFG_SEQ_Task_Id_t */
 	  CFG_SEQ_Task_LmHandlerProcess,
 	  CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent,
@@ -110,5 +112,3 @@ typedef enum
 #endif
 
 #endif /* __UTILITIES_DEF_H__ */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

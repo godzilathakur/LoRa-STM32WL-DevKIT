@@ -55,6 +55,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
   /* Compute TIM16 clock */
   uwTimclock = HAL_RCC_GetPCLK2Freq();
+
   /* Compute the prescaler value to have TIM16 counter clock equal to 1MHz */
   uwPrescalerValue = (uint32_t) ((uwTimclock / 1000000U) - 1U);
 
@@ -62,6 +63,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   htim16.Instance = TIM16;
 
   /* Initialize TIMx peripheral as follow:
+
   + Period = [(TIM16CLK/1000) - 1]. to have a (1/1000) s time base.
   + Prescaler = (uwTimclock/1000000 - 1) to have a 1MHz counter clock.
   + ClockDivision = 0
@@ -94,6 +96,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
       }
     }
   }
+
  /* Return function status */
   return status;
 }
@@ -122,4 +125,3 @@ void HAL_ResumeTick(void)
   __HAL_TIM_ENABLE_IT(&htim16, TIM_IT_UPDATE);
 }
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

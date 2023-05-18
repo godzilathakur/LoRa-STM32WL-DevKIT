@@ -57,7 +57,7 @@ RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi1;
 
-SUBGHZ_HandleTypeDef hsubghz;
+//SUBGHZ_HandleTypeDef hsubghz;
 
 /* USER CODE BEGIN PV */
 BMP280_HandleTypedef bmp280;
@@ -82,7 +82,6 @@ static void MX_I2C1_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_SUBGHZ_Init(void);
 static void MX_RTC_Init(void);
 static void MX_ADC_Init(void);
 /* USER CODE BEGIN PFP */
@@ -209,7 +208,6 @@ int main(void)
   MX_LPUART1_UART_Init();
   MX_USART1_UART_Init();
   MX_SPI1_Init();
-  MX_SUBGHZ_Init();
   MX_RTC_Init();
   MX_LoRaWAN_Init();
   MX_ADC_Init();
@@ -278,10 +276,12 @@ void SystemClock_Config(void)
   */
   HAL_PWR_EnableBkUpAccess();
   __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_MEDIUMLOW);
+
   /** Configure the main internal regulator output voltage
   */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
-  /** Initializes the CPU, AHB and APB busses clocks
+
+  /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSE;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
@@ -292,6 +292,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Configure the SYSCLKSource, HCLK, PCLK1 and PCLK2 clocks dividers
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK3|RCC_CLOCKTYPE_HCLK
@@ -326,6 +327,7 @@ static void MX_ADC_Init(void)
   /* USER CODE BEGIN ADC_Init 1 */
 
   /* USER CODE END ADC_Init 1 */
+
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
   */
   hadc.Instance = ADC;
@@ -351,6 +353,7 @@ static void MX_ADC_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_3;
@@ -360,6 +363,7 @@ static void MX_ADC_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_VBAT;
@@ -407,12 +411,14 @@ static void MX_I2C1_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Analogue filter
   */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
+
   /** Configure Digital filter
   */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
@@ -540,6 +546,7 @@ static void MX_RTC_Init(void)
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
+
   /** Initialize RTC Only
   */
   hrtc.Instance = RTC;
@@ -580,6 +587,7 @@ static void MX_RTC_Init(void)
   {
     Error_Handler();
   }
+
   /** Enable the Alarm A
   */
   sAlarm.AlarmTime.Hours = 0x0;
@@ -597,9 +605,11 @@ static void MX_RTC_Init(void)
   {
     Error_Handler();
   }
+
   /** Enable the Alarm B
   */
   sAlarm.Alarm = RTC_ALARM_B;
+
   /** Enable the WakeUp
   */
   if (HAL_RTCEx_SetWakeUpTimer(&hrtc, 0, RTC_WAKEUPCLOCK_RTCCLK_DIV16) != HAL_OK)
@@ -657,26 +667,26 @@ static void MX_SPI1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_SUBGHZ_Init(void)
-{
-
-  /* USER CODE BEGIN SUBGHZ_Init 0 */
-
-  /* USER CODE END SUBGHZ_Init 0 */
-
-  /* USER CODE BEGIN SUBGHZ_Init 1 */
-
-  /* USER CODE END SUBGHZ_Init 1 */
-  hsubghz.Init.BaudratePrescaler = SUBGHZSPI_BAUDRATEPRESCALER_8;
-  if (HAL_SUBGHZ_Init(&hsubghz) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SUBGHZ_Init 2 */
-
-  /* USER CODE END SUBGHZ_Init 2 */
-
-}
+//void MX_SUBGHZ_Init(void)
+//{
+//
+//  /* USER CODE BEGIN SUBGHZ_Init 0 */
+//
+//  /* USER CODE END SUBGHZ_Init 0 */
+//
+//  /* USER CODE BEGIN SUBGHZ_Init 1 */
+//
+//  /* USER CODE END SUBGHZ_Init 1 */
+//  hsubghz.Init.BaudratePrescaler = SUBGHZSPI_BAUDRATEPRESCALER_8;
+//  if (HAL_SUBGHZ_Init(&hsubghz) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  /* USER CODE BEGIN SUBGHZ_Init 2 */
+//
+//  /* USER CODE END SUBGHZ_Init 2 */
+//
+//}
 
 /**
   * Enable DMA controller clock
@@ -706,6 +716,8 @@ static void MX_DMA_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
+/* USER CODE BEGIN MX_GPIO_Init_1 */
+/* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -765,6 +777,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
+/* USER CODE BEGIN MX_GPIO_Init_2 */
+/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -849,7 +863,7 @@ if (counter > 10000){
 
 
 
-	  LmHandlerErrorStatus_t result = LmHandlerSend(&AppData, LORAMAC_HANDLER_UNCONFIRMED_MSG, &nextTxIn, false);
+	  LmHandlerErrorStatus_t result = LmHandlerSend(&AppData, LORAMAC_HANDLER_UNCONFIRMED_MSG, false);
 	  if (LORAMAC_HANDLER_SUCCESS == result)
 	  {
 	    printf("SEND REQUEST\r\n");
@@ -903,5 +917,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

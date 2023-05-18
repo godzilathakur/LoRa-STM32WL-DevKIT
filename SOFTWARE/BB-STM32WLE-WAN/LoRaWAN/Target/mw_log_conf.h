@@ -73,5 +73,3 @@ extern "C" {
 #endif
 
 #endif /*__MW_LOG_CONF_H__ */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
